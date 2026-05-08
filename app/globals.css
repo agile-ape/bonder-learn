@@ -1,26 +1,154 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * w3me-inspired palette (frame.css / screen.css):
+ * accent #5d5b7e, screen #f0ece5, shell #c0c0c0, borders #adabab,
+ * text rgb(88,88,88), controls #626b7a / #283136, LED #702323, panel #efeceb
+ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    --background: 200 21% 95%;
+    --foreground: 0 0% 35%;
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    --bond: 248 16% 42%;
+    --fund: 142 35% 38%;
+    --white: 0 0% 98%;
+
+    --muted: 72 3% 58%;
+    --muted-foreground: 0 0% 28%;
+
+    --border: 0 2% 67%;
+    --input: 0 2% 67%;
+
+    --primary: 248 16% 42%;
+    --highlight: 248 22% 48%;
+    --positive: 142 40% 36%;
+    --negative: 0 55% 42%;
+    --rare: 248 18% 55%;
+    --lp: 248 20% 45%;
+    --lp-foreground: 0 0% 98%;
+
+    --secondary: 218 11% 43%;
+    --destructive: 0 53% 29%;
+
+    --accent: 30 12% 93%;
+
+    --primary-foreground: 0 0% 8%;
+    --secondary-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 98%;
+    --accent-foreground: 0 0% 35%;
+
+    --popover: 204 15% 18%;
+    --popover-foreground: 0 0% 96%;
+
+    --card: 0 0% 75%;
+    --card-foreground: 0 0% 22%;
+
+    --bondPositive: 248 25% 45%;
+    --bondNegative: 0 45% 38%;
+
+    --ring: 248 16% 42%;
+
+    --govern-tint: 248 12% 88%;
+
+    --alpha: 340 28% 72%;
+    --beta: 248 15% 78%;
+
+    --radius: 0.75rem;
+
+    --chart-1: 248 40% 45%;
+    --chart-2: 142 35% 40%;
+    --chart-3: 40 60% 48%;
+    --chart-4: 280 35% 52%;
+    --chart-5: 350 45% 48%;
+
+    --bigch-blue: 218 25% 42%;
+    --bigch-background: 204 18% 16%;
+    --bigch-text: 40 15% 85%;
+
+    --sidebar-background: 40 25% 94%;
+    --sidebar-foreground: 0 0% 26%;
+    --sidebar-primary: 248 16% 35%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 40 20% 90%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 0 3% 82%;
+    --sidebar-ring: 248 16% 42%;
+  }
+
+  .dark {
+    --background: 204 18% 14%;
+    --foreground: 40 15% 92%;
+
+    --bond: 248 22% 58%;
+    --muted: 218 10% 35%;
+    --muted-foreground: 40 10% 75%;
+
+    --border: 218 10% 28%;
+    --input: 218 10% 28%;
+
+    --primary: 248 22% 58%;
+    --highlight: 248 28% 55%;
+    --positive: 142 38% 42%;
+    --negative: 0 50% 48%;
+    --rare: 248 22% 55%;
+    --lp: 248 24% 52%;
+    --lp-foreground: 0 0% 98%;
+
+    --secondary: 218 11% 35%;
+    --destructive: 0 48% 38%;
+
+    --accent: 218 12% 22%;
+
+    --primary-foreground: 0 0% 8%;
+    --secondary-foreground: 0 0% 96%;
+    --destructive-foreground: 0 0% 98%;
+    --accent-foreground: 40 15% 92%;
+
+    --popover: 204 15% 12%;
+    --popover-foreground: 40 15% 92%;
+
+    --card: 218 12% 18%;
+    --card-foreground: 40 15% 92%;
+
+    --bondPositive: 248 28% 58%;
+    --bondNegative: 0 42% 52%;
+
+    --ring: 248 22% 58%;
+
+    --govern-tint: 248 15% 18%;
+
+    --alpha: 340 25% 65%;
+    --beta: 248 18% 68%;
+
+    --sidebar-background: 204 18% 12%;
+    --sidebar-foreground: 40 15% 88%;
+    --sidebar-primary: 248 22% 58%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 218 12% 20%;
+    --sidebar-accent-foreground: 40 15% 90%;
+    --sidebar-border: 218 10% 24%;
+    --sidebar-ring: 248 22% 58%;
+  }
+  
+  .bg-container {
+    background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+  }
+  
+  * {
+    @apply border-border;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-size: 16px;
+  }
 }
