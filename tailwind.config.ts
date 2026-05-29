@@ -205,6 +205,11 @@ const config = {
           "50%": { transform: "translateY(50%)" },
           "100%": { transform: "translateY(-50%)" },
         },
+        "chatter-pop": {
+          "0%": { transform: "scale(0.85)", opacity: "0.6" },
+          "60%": { transform: "scale(1.08)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -221,6 +226,7 @@ const config = {
         third: "moveInCircle 40s linear infinite",
         fourth: "moveHorizontal 40s ease infinite",
         fifth: "moveInCircle 20s ease infinite",
+        "chatter-pop": "chatter-pop 0.45s ease-out",
       },
       backgroundImage: {
         "shimmer-gradient":

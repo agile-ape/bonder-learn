@@ -1,22 +1,22 @@
 "use client";
 
 import { useLearnCode } from "@/components/ui-learn/LearnCodeContext";
+import { CHATTER_BOX_ANSWER } from "@/lib/learn/exercises";
 import { useRef } from "react";
 
 export default function Controller() {
   const {
+    exercise,
     codeSource,
     setCodeSource,
-    isEditing,
-    disableEditing,
     runCode,
     compileError,
     clearCompiled,
+    clearChatterShouts,
   } = useLearnCode();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const insertSnippet = (snippet: string, tokenToSelect: string) => {
-    if (!isEditing) return;
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -41,87 +41,116 @@ export default function Controller() {
     });
   };
 
+  const applyAnswer = () => {
+    setCodeSource(CHATTER_BOX_ANSWER);
+    clearCompiled();
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  };
+
+  const isCalculator = exercise.kind === "calculator";
+  const isChatterBox = exercise.kind === "chatterBox";
+
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-50 px-4 pb-4">
-      <div
-        className={`pointer-events-auto mx-auto w-full max-w-3xl rounded-2xl border p-3 shadow-lg transition-colors ${
-          isEditing
-            ? "border-border bg-background/95"
-            : "border-border/60 bg-slate-900/80"
-        }`}
-      >
-        {!isEditing ? (
-          <div className="mb-2 rounded-md border border-white/10 bg-black/20 px-3 py-2 text-xs text-slate-200">
-            Editor is locked. Click Edit above to modify function.
-          </div>
-        ) : null}
-        <textarea
-          ref={textareaRef}
-          value={codeSource}
-          onChange={(e) => setCodeSource(e.target.value)}
-          spellCheck={false}
-          rows={6}
-          disabled={!isEditing}
-          className={`w-full resize-none rounded-xl border px-3 py-3 font-mono text-sm outline-none ring-ring focus-visible:ring-2 ${
-            isEditing
-              ? "border-border bg-muted/30 text-foreground"
-              : "cursor-not-allowed border-white/10 bg-black/40 text-slate-300 opacity-80"
-          }`}
-          aria-label="Code editor"
-        />
-        {compileError ? (
-          <p className="text-sm text-destructive" role="status">
-            {compileError}
-          </p>
-        ) : null}
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={!isEditing}
-              className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={() =>
-                insertSnippet("function name() {\n\n  return\n}", "name")
-              }
-            >
-              Function
-            </button>
-            <button
-              type="button"
-              disabled={!isEditing}
-              className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={() => insertSnippet("let name:type = ", "name")}
-            >
-              Let
-            </button>
-          </div>
-          <div className="flex items-center gap-2">
+    <section
+      className="w-full rounded-2xl border border-border bg-card/80 p-4 shadow-sm transition-colors"
+      aria-label="Your code"
+    >
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Your code
+        </h3>
+      </div>
+      <textarea
+        ref={textareaRef}
+        value={codeSource}
+        onChange={(e) => setCodeSource(e.target.value)}
+        spellCheck={false}
+        rows={10}
+        className="w-full resize-y rounded-xl border border-border bg-muted/30 px-3 py-3 font-mono text-sm text-foreground outline-none ring-ring focus-visible:ring-2"
+        aria-label="Code editor"
+      />
+      {compileError ? (
+        <p className="mt-2 text-sm text-destructive" role="status">
+          {compileError}
+        </p>
+      ) : null}
+      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          {isCalculator ? (
+            <>
+              <button
+                type="button"
+                className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground"
+                onClick={() =>
+                  insertSnippet(
+                    "let x;\nlet y;\n\nfunction compute() {\n\n  return\n}",
+                    "return",
+                  )
+                }
+              >
+                Block + compute
+              </button>
+              <button
+                type="button"
+                className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground"
+                onClick={() => insertSnippet("let x;\n", "x")}
+              >
+                let x
+              </button>
+            </>
+          ) : isChatterBox ? (
             <button
               type="button"
               className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground"
-              onClick={() => {
-                setCodeSource("function name() {}");
-                clearCompiled();
-                disableEditing();
-              }}
+              onClick={applyAnswer}
             >
-              Reset
+              Ans.
             </button>
-            <button
-              type="button"
-              className="h-10 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:opacity-90"
-              onClick={() => {
-                const ok = runCode(codeSource);
-                if (ok) {
-                  disableEditing();
+          ) : (
+            <>
+              <button
+                type="button"
+                className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground"
+                onClick={() =>
+                  insertSnippet(
+                    "function result(count) {\n\n  return \"Good\"\n}",
+                    "count",
+                  )
                 }
-              }}
-            >
-              Run
-            </button>
-          </div>
+              >
+                result()
+              </button>
+              <button
+                type="button"
+                className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground"
+                onClick={() => insertSnippet("let x;\n", "x")}
+              >
+                let x
+              </button>
+            </>
+          )}
+        </div>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            className="h-10 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground"
+            onClick={() => {
+              setCodeSource(exercise.defaultSource);
+              clearCompiled();
+              if (isChatterBox) clearChatterShouts();
+            }}
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            className="h-10 rounded-md border-none bg-blue-100 px-5 text-sm font-medium text-primary-foreground shadow-md shadow-[0_4px_6px_-1px_rgba(34,197,94,.3),0_2px_4px_-2px_rgba(6,182,212,.3)] hover:opacity-90"
+            onClick={() => runCode(codeSource)}
+          >
+            Run
+          </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

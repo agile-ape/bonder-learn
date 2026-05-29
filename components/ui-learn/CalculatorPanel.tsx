@@ -4,15 +4,17 @@ import { useLearnCode } from "@/components/ui-learn/LearnCodeContext";
 import { useState } from "react";
 
 export default function CalculatorPanel() {
-  const { compiledFn } = useLearnCode();
+  const { compiled } = useLearnCode();
   const [x, setX] = useState("");
   const [y, setY] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [calcError, setCalcError] = useState<string | null>(null);
 
+  const fn = compiled?.variant === "calculator" ? compiled.fn : null;
+
   const handleCalculate = () => {
-    if (!compiledFn) {
-      setCalcError("Run a valid function first.");
+    if (!fn) {
+      setCalcError("Run a valid program first.");
       setResult(null);
       return;
     }
@@ -33,7 +35,7 @@ export default function CalculatorPanel() {
     }
 
     try {
-      const out = compiledFn(nx, ny);
+      const out = fn(nx, ny);
       const text = String(out);
       if (text === "NaN") {
         setCalcError("Result is not a number (NaN).");
@@ -51,7 +53,8 @@ export default function CalculatorPanel() {
     <div className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-gradient-to-br from-white/60 via-white/30 to-transparent p-6 text-foreground shadow-sm backdrop-blur-sm">
       <h2 className="text-lg font-semibold">Calculator</h2>
       <p className="text-sm text-muted-foreground">
-        Enter x and y, then calculate using your latest compiled function.
+        Enter x and y. They are written into your program, then{" "}
+        <span className="font-mono">compute()</span> runs.
       </p>
       <div className="space-y-3">
         <label className="block space-y-1">

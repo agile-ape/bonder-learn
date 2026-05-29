@@ -1,101 +1,155 @@
 "use client";
 
 import {
+  compileCalculatorSource,
+  compileChatterBoxSource,
+  compileResultPreviewSource,
+} from "@/lib/learn/compileBlock";
+import { clearChatterShoutsStorage } from "@/lib/learn/chatterStorage";
+import {
+  getExercise,
+  type LearnExercise,
+} from "@/lib/learn/exercises";
+import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 
-export type LearnCompiledFn = (x: number, y: number) => unknown;
+export type LearnCompiled =
+  | { variant: "calculator"; fn: (x: number, y: number) => unknown }
+  | { variant: "resultPreview"; run: (n: number) => unknown }
+  | { variant: "chatterBox"; shout: () => unknown };
 
 type LearnCodeContextValue = {
+  exerciseId: string;
+  exercise: LearnExercise;
   codeSource: string;
   setCodeSource: (source: string) => void;
-  isEditing: boolean;
-  enableEditing: () => void;
-  disableEditing: () => void;
-  compiledFn: LearnCompiledFn | null;
+  compiled: LearnCompiled | null;
   compileError: string | null;
   runCode: (source: string) => boolean;
   clearCompiled: () => void;
+  chatterShoutsClearedAt: number;
+  clearChatterShouts: () => void;
+  chatterRunSeq: number;
 };
 
 const LearnCodeContext = createContext<LearnCodeContextValue | null>(null);
 
-const FN_REGEX =
-  /^function\s+\w+\s*\(\s*x\s*,\s*y\s*\)\s*\{([\s\S]*)\}\s*$/;
-const DEFAULT_SOURCE = "function name() {}";
+type LearnCodeProviderProps = {
+  exerciseId: string;
+  children: ReactNode;
+};
 
-export function LearnCodeProvider({ children }: { children: ReactNode }) {
-  const [codeSource, setCodeSource] = useState(DEFAULT_SOURCE);
-  const [isEditing, setIsEditing] = useState(false);
-  const [compiledFn, setCompiledFn] = useState<LearnCompiledFn | null>(null);
+export function LearnCodeProvider({
+  exerciseId,
+  children,
+}: LearnCodeProviderProps) {
+  const exercise = getExercise(exerciseId);
+  if (!exercise) {
+    throw new Error(`Unknown exercise: ${exerciseId}`);
+  }
+
+  const [codeSource, setCodeSource] = useState(exercise.defaultSource);
+  const [compiled, setCompiled] = useState<LearnCompiled | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
+  const [chatterShoutsClearedAt, setChatterShoutsClearedAt] = useState(0);
+  const [chatterRunSeq, setChatterRunSeq] = useState(0);
 
-  const enableEditing = useCallback(() => {
-    setIsEditing(true);
-  }, []);
-
-  const disableEditing = useCallback(() => {
-    setIsEditing(false);
-  }, []);
+  useEffect(() => {
+    const next = getExercise(exerciseId);
+    if (!next) return;
+    setCodeSource(next.defaultSource);
+    setCompiled(null);
+    setCompileError(null);
+  }, [exerciseId]);
 
   const runCode = useCallback((source: string) => {
     setCodeSource(source);
     const trimmed = source.trim();
-    const m = trimmed.match(FN_REGEX);
-    if (!m) {
-      setCompileError("Expected: function name(x, y) { ... }");
-      setCompiledFn(null);
+    const ex = getExercise(exerciseId);
+    if (!ex) {
+      setCompileError("Unknown exercise.");
+      setCompiled(null);
       return false;
     }
-    const body = m[1];
-    try {
-      const factory = new Function("x", "y", body) as (
-        x: number,
-        y: number,
-      ) => unknown;
-      const wrapped: LearnCompiledFn = (x, y) => factory(Number(x), Number(y));
-      setCompiledFn(() => wrapped);
+
+    if (ex.kind === "calculator") {
+      const out = compileCalculatorSource(trimmed);
+      if (!out.ok) {
+        setCompileError(out.error);
+        setCompiled(null);
+        return false;
+      }
+      setCompiled({ variant: "calculator", fn: out.value });
       setCompileError(null);
       return true;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setCompileError(msg);
-      setCompiledFn(null);
+    }
+
+    if (ex.kind === "chatterBox") {
+      const out = compileChatterBoxSource(trimmed);
+      if (!out.ok) {
+        setCompileError(out.error);
+        setCompiled(null);
+        return false;
+      }
+      setCompiled({ variant: "chatterBox", shout: out.value });
+      setCompileError(null);
+      setChatterRunSeq((n) => n + 1);
+      return true;
+    }
+
+    const out = compileResultPreviewSource(trimmed);
+    if (!out.ok) {
+      setCompileError(out.error);
+      setCompiled(null);
       return false;
     }
-  }, []);
+    setCompiled({ variant: "resultPreview", run: out.value });
+    setCompileError(null);
+    return true;
+  }, [exerciseId]);
 
   const clearCompiled = useCallback(() => {
-    setCompiledFn(null);
+    setCompiled(null);
     setCompileError(null);
+  }, []);
+
+  const clearChatterShouts = useCallback(() => {
+    clearChatterShoutsStorage();
+    setChatterShoutsClearedAt((n) => n + 1);
   }, []);
 
   const value = useMemo(
     () => ({
+      exerciseId,
+      exercise,
       codeSource,
       setCodeSource,
-      isEditing,
-      enableEditing,
-      disableEditing,
-      compiledFn,
+      compiled,
       compileError,
       runCode,
       clearCompiled,
+      chatterShoutsClearedAt,
+      clearChatterShouts,
+      chatterRunSeq,
     }),
     [
+      exerciseId,
+      exercise,
       codeSource,
-      isEditing,
-      enableEditing,
-      disableEditing,
-      compiledFn,
+      compiled,
       compileError,
       runCode,
       clearCompiled,
+      chatterShoutsClearedAt,
+      clearChatterShouts,
+      chatterRunSeq,
     ],
   );
 

@@ -1,33 +1,31 @@
-
 "use client";
 
 import CalculatorPanel from "@/components/ui-learn/CalculatorPanel";
+import ChatterBoxPanel from "@/components/ui-learn/ChatterBoxPanel";
+import Controller from "@/components/ui-learn/Controller";
+import ResultInputPanel from "@/components/ui-learn/ResultInputPanel";
 import { useLearnCode } from "@/components/ui-learn/LearnCodeContext";
+import Link from "next/link";
 
 export default function Background() {
-  const { codeSource, enableEditing } = useLearnCode();
+  const { exercise } = useLearnCode();
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 pb-48 pt-8">
-      <div className="w-full max-w-md space-y-4">
-        <CalculatorPanel />
-        <div className="rounded-2xl border border-border bg-card/80 p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Computed Function
-            </h3>
-            <button
-              type="button"
-              onClick={enableEditing}
-              className="h-8 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground hover:bg-muted"
-            >
-              Edit
-            </button>
-          </div>
-          <pre className="overflow-x-auto rounded-md border border-border bg-background/70 p-3 font-mono text-sm text-foreground">
-            {codeSource}
-          </pre>
-        </div>
+    <div className="flex min-h-screen flex-col items-center px-4 pb-12 pt-8">
+      <div className="mb-6 flex w-full max-w-2xl flex-col gap-2">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            {exercise.title}
+          </h1>
+      </div>
+      <div className="flex w-full max-w-2xl flex-col space-y-4">
+        {exercise.kind === "calculator" ? (
+          <CalculatorPanel />
+        ) : exercise.kind === "chatterBox" ? (
+          <ChatterBoxPanel />
+        ) : (
+          <ResultInputPanel />
+        )}
+        <Controller />
       </div>
     </div>
   );
