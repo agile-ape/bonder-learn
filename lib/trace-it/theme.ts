@@ -1,0 +1,9 @@
+export const PLAYFIELD_BG = "#2c3e50";
+export const CODE_TEXT_LIGHT = "#ffffff";
+export const CODE_TEXT_DIM = "rgba(255,255,255,0.35)";
+export const TABLE_HEADER = "rgba(255,255,255,0.5)";
+export const TABLE_CELL = "#ffffff";
+export const TABLE_CELL_DIM = "rgba(255,255,255,0.45)";
+export const CONDITION_TRUE = "#aed581";
+export const CONDITION_FALSE = "#ef5350";
+export const ROW_PULSE = "#26c6da";

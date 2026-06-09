@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "rebuild": "next build"
+    "rebuild": "next build",
+    "test:compute-it": "tsx lib/compute-it/interpreter.test.ts && tsx lib/compute-it/reverse.test.ts",
+    "test:trace-it": "tsx lib/trace-it/engine.test.ts"
   },
   "dependencies": {
     "@abstract-foundation/agw-client": "^1.4.2",
